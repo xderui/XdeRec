@@ -1,0 +1,29 @@
+{
+    "train_config" : {
+        "model" : "LightGCN",
+        "epoch" : 1000,
+        "n_batch" : "",
+        "batch_size": 1024,
+        "lr" : 1e-3,
+        "decay" : 1e-4,
+        "pretrain" : "",
+        "seed" : 2020,
+        "device": "cuda:0",
+        "val_step": 1
+    },
+    "dataset_config" : {
+        "dataset" : "ml-1m", 
+        "columns" : ["uid", "iid", "rating", "timestamp"],
+        "map_columns": ["uid", "iid"],
+        "core_columns" : ["uid","iid"],
+        "core_settings" : [5,5],
+        "separator" : "::",
+        "split_ratio" : [0.7,0.1,0.2],
+        "order" : "timestamp",
+        "groupby" : "uid"
+    },
+    "eval_config":{
+        "topk" : 10,
+        "metrics" : ["recall", "ndcg"]
+    }
+}
