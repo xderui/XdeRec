@@ -3,7 +3,7 @@ Description:
 Author: Rigel Ma
 Date: 2023-12-01 18:45:49
 LastEditors: Rigel Ma
-LastEditTime: 2024-04-17 16:54:32
+LastEditTime: 2024-04-20 20:00:57
 FilePath: Trainer.py
 '''
 
@@ -40,6 +40,13 @@ class Trainer(nn.Module):
         optimizer = torch.optim.Adam(self.model_.parameters(), lr=self.lr)
 
         self.model_.train()
+        if hasattr(self, 'early_stop'):
+            early_stop = self.early_stop
+            acc_epoch = 0
+        else:
+            early_stop = None 
+
+        best_status = None
 
         for epoch_ in range(self.epoch):
             if hasattr(self, 'n_batch'):
@@ -52,6 +59,7 @@ class Trainer(nn.Module):
             train_loop = tqdm(enumerate(loop), total=n_batch)
             s_time = time.time()
             avg_loss = 0
+            self.model_.sample()
             for batch_idx, batch in train_loop:
                 batch = [torch.tensor(v).cuda() for v in batch]
                 users, pos_items, neg_items = batch
@@ -64,10 +72,31 @@ class Trainer(nn.Module):
                 train_loop.set_description(f'Epoch [{epoch_}/{self.epoch}]')
                 train_loop.set_postfix(loss = loss.item())
             results = self.evaluator.evaluate('val')
-            print(f'Epoch [{epoch_}/{self.epoch}][{round(time.time() - s_time, 2)} + s]: avg_loss:{round(avg_loss.item()/n_batch, 6)}, ' + ', '.join([f'{k}:{round(v, 4)}' for k,v in results.items()]))
+            print(f'Epoch [{epoch_}/{self.epoch}][{round(time.time() - s_time, 2)} + s]: avg_loss:{round(avg_loss.item()/n_batch, 6)}, ' + ', '.join([f'{k}:{round(v, 4)}' for k,v in results.items()]))        
 
-        # training finished
-        self.evaluator.evaluate('test')
+            if not best_status:
+                best_status = [epoch_, results]
+            else:
+                best_num = 0
+                keys_len = len(results) // 2
+                best_results = best_status[1]
+                for k in results.keys():
+                    if results[k] > best_results[k]:
+                        best_num += 1
+                if best_num >= keys_len:
+                    best_status = [epoch_, results]
+                
+                if early_stop:
+                    if best_num >= keys_len:
+                        acc_epoch = 0
+                    else:
+                        acc_epoch += 1
+            
+            if early_stop and acc_epoch >= early_stop:
+                break
+
+        print('best val: epoch {}, '.format(best_status[0]) + ', '.join([f'{k}:{round(v, 4)}' for k,v in best_status[1].items()]))
+
         
 
             

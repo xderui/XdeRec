@@ -109,7 +109,7 @@ class LightGCN(BaseModel):
         
         loss = self.bpr_loss(user_embs, pos_item_embs, neg_item_embs)
         
-        loss = loss + 1e-05 * (pre_user_embs.norm(2).pow(2) + pre_pos_item_embs.norm(2).pow(2) \
+        loss = loss + self.emb_reg * (pre_user_embs.norm(2).pow(2) + pre_pos_item_embs.norm(2).pow(2) \
                     + pre_neg_item_embs.norm(2).pow(2))
 
         return loss

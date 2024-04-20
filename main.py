@@ -3,7 +3,7 @@ Description:
 Author: Rigel Ma
 Date: 2023-10-16 20:49:33
 LastEditors: Rigel Ma
-LastEditTime: 2024-04-17 16:54:11
+LastEditTime: 2024-04-20 19:40:28
 FilePath: main.py
 '''
 
@@ -12,6 +12,7 @@ import json
 from utils.parser import main_parser
 from data.Interact_dataset import Interact_dataset
 from model.Trainer import Trainer
+from model.Evaluator import Evaluator
 import os
 from utils.Libs import *
 from utils.set_color_log import init_logger
@@ -30,10 +31,9 @@ if __name__ == "__main__":
 
     # data #
     dataset_config = config['dataset_config']
-    dataset_config['batch_size'] = train_config['batch_size'] # 生成数据需要batch_size
+    dataset_config['batch_size'] = train_config['batch_size']
     interactions = Interact_dataset(**dataset_config)
     interactions.process()
-    # train_data, val_data, test_data = interactions.split_dataset()
 
     # model #
     model_name = train_config['model']
@@ -52,3 +52,10 @@ if __name__ == "__main__":
     eval_config = config['eval_config']
     trainer = Trainer(train_config, eval_config, model_)
     trainer.train()
+
+    # test #
+    test_config = config['test_config']
+    evaluator = Evaluator(model_, test_config)
+    test_results = evaluator.evaluate('test')
+    print('final test: ' + ', '.join([f'{k}:{round(v, 4)}' for k,v in test_results.items()]))
+    

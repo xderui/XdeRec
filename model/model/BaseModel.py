@@ -2,7 +2,7 @@
 Author: Rigel Ma
 Date: 2023-11-24 15:46:58
 LastEditors: Rigel Ma
-LastEditTime: 2024-04-17 16:55:13
+LastEditTime: 2024-04-20 19:45:03
 FilePath: BaseModel.py
 Description: The class of other models will inherit on BaseModel
 '''
@@ -49,14 +49,15 @@ class BaseModel(nn.Module, ABC):
         self.G_shape = [self.G_dim] * 2
         self.G_indices, self.G_values = self.laplacian_adj()
 
-
-        
-
         self.init_param(param_dict)
+        
 
     def init_param(self, param_dict):
         for k,v in param_dict.items():
-            exec(f'self.{k}={v}')
+            if isinstance(v, str):
+                exec(f'self.{k}="{v}"')
+            else:
+                exec(f'self.{k}={v}')
     
 
     def laplacian_adj(self):
@@ -76,3 +77,11 @@ class BaseModel(nn.Module, ABC):
     def forward(self):
         pass
 
+    @abstractmethod
+    def predict(self):
+        pass
+    
+
+    @abstractmethod
+    def sample(self):
+        pass

@@ -2,5 +2,6 @@
     "latent_dim": 64,
     "n_layers": 2,
     "keep_prob": false,
-    "A_split": false
+    "A_split": false,
+    "emb_reg": 1e-4
 }

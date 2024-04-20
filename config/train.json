@@ -1,15 +1,16 @@
 {
     "train_config" : {
-        "model" : "LightGCN",
-        "epoch" : 1000,
+        "model" : "SGL",
+        "epoch" : 500,
         "n_batch" : "",
         "batch_size": 1024,
         "lr" : 1e-3,
         "decay" : 1e-4,
         "pretrain" : "",
         "seed" : 2020,
-        "device": "cuda:0",
-        "val_step": 1
+        "device" : "cuda:0",
+        "val_step" : 1,
+        "early_stop" : 30
     },
     "dataset_config" : {
         "dataset" : "ml-1m", 
@@ -23,6 +24,10 @@
         "groupby" : "uid"
     },
     "eval_config":{
+        "topk" : 10,
+        "metrics" : ["recall", "ndcg"]
+    },
+    "test_config":{
         "topk" : 10,
         "metrics" : ["recall", "ndcg"]
     }
