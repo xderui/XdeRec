@@ -1,0 +1,7 @@
+{
+    "latent_dim": 64,
+    "n_layers": 2,
+    "cl_reg": 0.05,
+    "emb_reg": 1e-4,
+    "temperature": 0.1
+}

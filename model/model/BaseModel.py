@@ -2,7 +2,7 @@
 Author: Rigel Ma
 Date: 2023-11-24 15:46:58
 LastEditors: Rigel Ma
-LastEditTime: 2024-04-20 19:45:03
+LastEditTime: 2024-04-20 20:44:26
 FilePath: BaseModel.py
 Description: The class of other models will inherit on BaseModel
 '''
@@ -23,12 +23,11 @@ class BaseModel(nn.Module, ABC):
 
         # prepare for sparse graph
         self.uid_list, self.iid_list = interactions.get_uid_iid('train')
-        print(type(self.uid_list), type(self.iid_list))
-        # rows, cols in adj_mat
-        self.rows = np.concatenate([self.uid_list, self.iid_list+self.num_users], axis=0)
-        self.cols = np.concatenate([self.iid_list+self.num_users, self.uid_list], axis=0)
-
         
+        # rows, cols in adj_mat
+        self.rows = np.concatenate([self.uid_list, self.iid_list+self.num_users], axis=0).tolist()
+        self.cols = np.concatenate([self.iid_list+self.num_users, self.uid_list], axis=0).tolist()
+
 
         #### information of adj mat ####
 
@@ -81,7 +80,5 @@ class BaseModel(nn.Module, ABC):
     def predict(self):
         pass
     
-
-    @abstractmethod
     def sample(self):
         pass

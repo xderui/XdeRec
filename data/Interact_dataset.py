@@ -202,8 +202,7 @@ class Interact_dataset(Dataset):
 
         self.splited_interactions = splited_interactions
 
-        for interaction_ in self.splited_interactions:
-            print(len(interaction_))
+        print(f"splited: [{[len(inter) for inter in self.splited_interactions]}]")
 
         return self.splited_interactions
     

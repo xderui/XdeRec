@@ -1,6 +1,6 @@
 {
     "train_config" : {
-        "model" : "SGL",
+        "model" : "XSimGCL",
         "epoch" : 500,
         "n_batch" : "",
         "batch_size": 1024,
