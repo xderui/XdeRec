@@ -1,6 +1,6 @@
 {
     "train_config" : {
-        "model" : "XSimGCL",
+        "model" : "DCCF",
         "epoch" : 500,
         "n_batch" : "",
         "batch_size": 1024,

@@ -1,0 +1,6 @@
+{
+    "latent_dim": 64,
+    "n_layers": 2,
+    "emb_reg": 1e-4,
+    "uniform_reg": 0.01
+}

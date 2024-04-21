@@ -133,10 +133,6 @@ class SGL(BaseModel):
         user_embs = all_users[users]
         pos_item_embs = all_items[pos_items]
         neg_item_embs = all_items[neg_items]
-
-        pre_user_embs = self.embedding_user(users)
-        pre_pos_item_embs = self.embedding_item(pos_items)
-        pre_neg_item_embs = self.embedding_item(neg_items)
         
         loss = self.bpr_loss(user_embs, pos_item_embs, neg_item_embs)
         

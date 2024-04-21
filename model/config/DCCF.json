@@ -1,0 +1,9 @@
+{
+    "latent_dim": 64,
+    "n_layers": 2,
+    "emb_reg": 2.5e-5,
+    "cen_reg": 5e-3,
+    "ssl_reg": 1e-1,
+    "n_intents": 128,
+    "temperature": 1
+}
