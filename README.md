@@ -3,7 +3,7 @@
  * @Author: Rigel Ma
  * @Date: 2024-04-17 16:41:31
  * @LastEditors: Rigel Ma
- * @LastEditTime: 2024-04-20 21:23:14
+ * @LastEditTime: 2024-04-22 22:16:00
  * @FilePath: README.md
 -->
 # XdeRec
@@ -25,3 +25,10 @@ Now, XdeRec covers the following major recommendation tasks:
 04/17/2024: The basic training functions have been realized.
 
 04/17/2024: Add three models: SGL, SimGCL and XSimGCL
+
+
+## Usage
+
+```python
+python main.py --config ./config/train.json
+```

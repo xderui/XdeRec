@@ -16,7 +16,12 @@ from pprint import pprint
 import copy
 import random
 import scipy.sparse as sp
+import os
+import json
+from data.download import download
+import sys
 
+SUPPORT_PRODUCT = {}
 
 class Interact_dataset(Dataset):
     def __init__(self, **kwargs):
@@ -31,6 +36,7 @@ class Interact_dataset(Dataset):
 
         # parameters
         self.dataset_name = kwargs.get('dataset')
+        self.dataset_file = kwargs.get('file')
         self.columns = kwargs.get('columns')
         self.map_columns = kwargs.get('map_columns')
         self.core_columns= kwargs.get('core_columns')
@@ -42,7 +48,37 @@ class Interact_dataset(Dataset):
 
         # load data
         separator = kwargs.get('separator')
-        dataset_path = './dataset/{}/ratings.dat'.format(self.dataset_name)
+        dataset_root_path = './dataset/{}'.format(self.dataset_name)
+        dataset_path = os.path.join(dataset_root_path, self.dataset_file)
+
+        if not os.path.exists(dataset_root_path):
+            download_flag = input(f'dataset {self.dataset_name} not found, try to download it?\n[y]es, [n]o:')
+            if download_flag == 'y':
+                if len(SUPPORT_PRODUCT) == 0:
+                    self.get_support_product()
+                
+                if len(SUPPORT_PRODUCT) == 0:
+                    print('sorry, there seems no dataset avaliable for download...>_<\nplease setup the dataset by self!')
+                    sys.exit(0)
+                
+                print("Which of the following does this dataset belong to?")
+                for idx, product in enumerate(SUPPORT_PRODUCT.keys()):
+                    print(f"{idx}. {product}")
+                
+                try:
+                    product_id = int(input("choose: "))
+                except ValueError:
+                    raise "invalid id!"
+
+                url_root = dict(list(SUPPORT_PRODUCT.values())[product_id])
+                download(url_root['url_root'], self.dataset_name)
+
+            else:
+                print("No dataset can be used.")
+                sys.exit(0)
+                    
+
+
         self.interactions = pd.read_csv(dataset_path, sep=separator, header=None, names=self.columns, engine='python')
         self.map_interactions = copy.deepcopy(self.interactions)
 
@@ -63,6 +99,11 @@ class Interact_dataset(Dataset):
     def size(self):
         return (self.num_users+self.num_items, self.num_items+self.num_users)
     
+
+    def get_support_product(self):
+        url_path = './data/url.json'
+        global SUPPORT_PRODUCT
+        SUPPORT_PRODUCT = json.loads(open(url_path).read())
 
 
     def process(self):

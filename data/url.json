@@ -1,0 +1,8 @@
+{
+    "amazon":{
+        "url_root": "http://snap.stanford.edu/data/amazon/productGraph/categoryFiles/"
+    },
+    "movielens":{
+        "url_root": "https://files.grouplens.org/datasets/movielens/"
+    }
+}

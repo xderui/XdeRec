@@ -13,7 +13,8 @@
         "early_stop" : 30
     },
     "dataset_config" : {
-        "dataset" : "ml-1m", 
+        "dataset" : "ml-100k",
+        "file" : "ratings.dat",
         "columns" : ["uid", "iid", "rating", "timestamp"],
         "map_columns": ["uid", "iid"],
         "core_columns" : ["uid","iid"],
