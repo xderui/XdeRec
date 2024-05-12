@@ -1,14 +1,14 @@
 from utils.Libs import *
 from model.model.BaseModel import BaseModel
-from data.Interact_dataset import Interact_dataset
+from data.interact_dataset import Interact_dataset
 import random
 import scipy.sparse as sp
 
-class XSimGCL(BaseModel):
+class SimGCL(BaseModel):
     def __init__(self,
                  interactions: Interact_dataset,
                  param_dict: dict):
-        super(XSimGCL, self).__init__(interactions, param_dict)
+        super(SimGCL, self).__init__(interactions, param_dict)
         
         self.embedding_user = nn.Embedding(
             num_embeddings=self.interactions.num_users, 
@@ -38,9 +38,11 @@ class XSimGCL(BaseModel):
         return torch.mean(cl_loss)
 
     def cal_cl_loss(self, users, pos_items):
-        loss_1 = self.InfoNCE(self.user_emb[users], self.user_emb_cl[users])
-        loss_2 = self.InfoNCE(self.item_emb[pos_items], self.item_emb_cl[pos_items])
-        return loss_1 + loss_2
+        user_view_1, item_view_1 = self.computer(self.new_G_indices_1, self.new_G_values_1)
+        user_view_2, item_view_2 = self.computer(self.new_G_indices_2, self.new_G_values_2)
+        user_cl_loss = self.InfoNCE(user_view_1[users], user_view_2[users])
+        item_cl_loss = self.InfoNCE(item_view_1[pos_items], item_view_2[pos_items])
+        return user_cl_loss + item_cl_loss
 
 
     def computer(self, perturbed=False):
@@ -49,7 +51,6 @@ class XSimGCL(BaseModel):
 
         embs = torch.concat([user_emb, item_emb], dim=0)
         all_embs = [embs]
-        all_embs_cl = embs
 
         for _ in range(self.n_layers):
             embs = torch_sparse.spmm(self.G_indices, self.G_values, self.A_dim, self.A_dim, embs)
@@ -64,12 +65,16 @@ class XSimGCL(BaseModel):
         all_embs = torch.mean(all_embs, dim=1, keepdim=False)
 
         self.user_emb, self.item_emb = torch.split(all_embs, [self.num_users, self.num_items])
-        self.user_emb_cl, self.item_emb_cl = torch.split(all_embs_cl, [self.num_users, self.num_items])
 
         return self.user_emb, self.item_emb
 
 
     def forward(self, users, pos_items, neg_items):
+
+        # cl loss
+        cl_loss = self.cl_reg * self.cal_cl_loss(users, pos_items) 
+
+
         all_users, all_items = self.computer()
         user_embs = all_users[users]
         pos_item_embs = all_items[pos_items]
@@ -78,9 +83,6 @@ class XSimGCL(BaseModel):
         loss = self.bpr_loss(user_embs, pos_item_embs, neg_item_embs)
         
         loss = loss + self.emb_reg * (user_embs.norm(2) + pos_item_embs.norm(2))
-        
-        # cl loss
-        cl_loss = self.cl_reg * self.cal_cl_loss(users, pos_items) 
         
         loss = loss + cl_loss
 

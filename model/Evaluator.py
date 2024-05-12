@@ -3,13 +3,12 @@ Description:
 Author: Rigel Ma
 Date: 2023-12-08 20:05:40
 LastEditors: Rigel Ma
-LastEditTime: 2024-04-17 16:54:37
+LastEditTime: 2024-05-12 15:21:04
 FilePath: Evaluator.py
 '''
 
 
 from utils.Libs import *
-from model.model.BaseModel import BaseModel
 import math
 from pprint import pprint
 import time
@@ -17,7 +16,7 @@ from collections import defaultdict
 
 class Evaluator(nn.Module):
     def __init__(self,
-                 model_:BaseModel, 
+                 model_, 
                  eval_config: dict):
         super(Evaluator, self).__init__()
 

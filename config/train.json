@@ -13,7 +13,7 @@
         "early_stop" : 30
     },
     "dataset_config" : {
-        "dataset" : "ml-100k",
+        "dataset" : "ml-1m",
         "file" : "ratings.dat",
         "columns" : ["uid", "iid", "rating", "timestamp"],
         "map_columns": ["uid", "iid"],
@@ -22,7 +22,8 @@
         "separator" : "::",
         "split_ratio" : [0.7,0.1,0.2],
         "order" : "timestamp",
-        "groupby" : "uid"
+        "groupby" : "uid",
+        "max_seq_len": 50
     },
     "eval_config":{
         "topk" : 10,

@@ -1,0 +1,7 @@
+interact_dataset:
+  dataset: "The name of dataset, e.g. ml-1m, amazon-book"
+  file: "The file of interaction data such as ratings.dat"
+  columns: "The columns in interaction file"
+  separator: "The separator in interaction file"
+sequential_dataset:
+  max_seq_len: "The max length of history interaction record. It's related to the settings of model."

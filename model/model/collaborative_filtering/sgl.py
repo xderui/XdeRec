@@ -1,6 +1,6 @@
 from utils.Libs import *
 from model.model.BaseModel import BaseModel
-from data.Interact_dataset import Interact_dataset
+from data.interact_dataset import Interact_dataset
 import random
 import scipy.sparse as sp
 

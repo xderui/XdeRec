@@ -3,17 +3,19 @@ Description:
 Author: Rigel Ma
 Date: 2023-10-16 20:49:33
 LastEditors: Rigel Ma
-LastEditTime: 2024-04-20 19:40:28
+LastEditTime: 2024-05-12 20:27:58
 FilePath: main.py
 '''
 
 import importlib
 import json
 from utils.parser import main_parser
-from data.Interact_dataset import Interact_dataset
+from data.collaborative_filtering_dataset import CF_dataset
+from data.sequential_recommendation_dataset import Sequential_dataset
 from model.Trainer import Trainer
 from model.Evaluator import Evaluator
 import os
+import imp
 from utils.Libs import *
 from utils.set_color_log import init_logger
 
@@ -29,16 +31,32 @@ if __name__ == "__main__":
     train_config = config['train_config']
     update_DEVICE(torch.device(train_config['device']))
 
-    # data #
+    # data & model
+
     dataset_config = config['dataset_config']
     dataset_config['batch_size'] = train_config['batch_size']
-    interactions = Interact_dataset(**dataset_config)
-    interactions.process()
+    
+    
+    # first find model module, ensuring which type of dataset should be loaded
+    model_name = train_config['model'].lower()
+    MODEL_MODULE = None
+    for model_type in MODEL_TYPES:
+        model_module_path = '.'.join(['model', 'model', model_type, model_name])
+        if importlib.util.find_spec(model_module_path, __name__):
+            MODEL_MODULE = importlib.import_module(f'model.model.{model_type}.{model_name}', __name__)
+            model_type_ = model_type
+            break
+    if not MODEL_MODULE:
+        raise ValueError(f"model {train_config['model']} is not exsits")
+    
+    MODEL_CLASS = getattr(MODEL_MODULE, train_config['model'])
+    
+    # init dataset
+    DATASET_MODULE = importlib.import_module(f"data.{model_type_}_dataset", __name__)
+    DATASET_CLASS = getattr(DATASET_MODULE, MODEL_TYPE2DATASET_TYPE[model_type_])
+    
+    interactions = DATASET_CLASS(**dataset_config)
 
-    # model #
-    model_name = train_config['model']
-    MODEL_Module = importlib.import_module('model.model.{}'.format(model_name))
-    MODEL = getattr(MODEL_Module, model_name)
 
     # init model
     # parameters setting is in ./model/config/{model_name}.json
@@ -46,7 +64,7 @@ if __name__ == "__main__":
     model_config_path = f'./model/config/{model_name}.json'
     model_config = json.loads(open(model_config_path,'r').read())
 
-    model_ = MODEL(interactions, model_config)
+    model_ = MODEL_CLASS(interactions, model_config)
 
     # train #
     eval_config = config['eval_config']

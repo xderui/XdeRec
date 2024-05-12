@@ -3,13 +3,13 @@ Description:
 Author: Rigel Ma
 Date: 2024-04-21 17:06:09
 LastEditors: Rigel Ma
-LastEditTime: 2024-04-21 21:12:32
+LastEditTime: 2024-05-12 15:51:08
 FilePath: DCCF.py
 Paper: Disentangled contrastive collaborative filtering, SIGIR 2023
 '''
 from utils.Libs import *
-from model.model.BaseModel import BaseModel
-from data.Interact_dataset import Interact_dataset
+from model.model.collaborative_filtering.BaseModel import BaseModel
+from data.interact_dataset import Interact_dataset
 from utils.loss import bpr_loss, reg_loss_pow
 
 
