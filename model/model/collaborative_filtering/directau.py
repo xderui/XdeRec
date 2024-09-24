@@ -9,7 +9,7 @@ Paper: Towards representation alignment and uniformity in collaborative filterin
 '''
 
 from utils.Libs import *
-from model.model.BaseModel import BaseModel
+from model.model.collaborative_filtering._BaseModel_ import BaseModel
 from data.interact_dataset import Interact_dataset
 from utils.loss import reg_loss, alignment_loss, uniformity_loss
 

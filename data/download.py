@@ -38,10 +38,12 @@ def download(url_root, product_name=""):
             candidate_product_names.append(name_)
         
     if product_name != "":
+        print("matching!")
         match_names = []
         match_links = []
         for idx, candidate_name in enumerate(candidate_product_names):
-            if fuzz.ratio(product_name, candidate_name) > 0.75:
+            if fuzz.ratio(product_name, candidate_name) > 20:
+                print(product_name, candidate_name, fuzz.ratio(product_name, candidate_name))
                 match_names.append(candidate_name)
                 match_links.append(candidate_product_links[idx])
         if len(match_names) == 0:

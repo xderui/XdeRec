@@ -186,6 +186,3 @@ class DCCF(BaseModel):
         neg_emb_ego = self.embedding_item(neg_items)
         return users_emb, pos_emb, neg_emb, users_emb_ego, pos_emb_ego, neg_emb_ego
 
-    
-
-        

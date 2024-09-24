@@ -27,7 +27,7 @@ Ref. @author: Jianbai Ye (gusye@mail.ustc.edu.cn)
 """
 
 from utils.Libs import *
-from model.model.BaseModel import BaseModel
+from model.model.collaborative_filtering._BaseModel_ import BaseModel
 from data.interact_dataset import Interact_dataset
 
 

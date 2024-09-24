@@ -23,6 +23,12 @@ MODEL_TYPE2DATASET_TYPE = {
     "sequential_recommendation" : "Sequential_dataset"
 }
 
+MODEL_TYPE2TRAINER_TYPE = {
+    "collaborative_filtering" : "Trainer",
+    "sequential_recommendation" : "SeqTrainer"
+}
+
+
 logger = init_logger()
 
 

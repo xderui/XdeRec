@@ -1,0 +1,9 @@
+{
+    "latent_dim": 64,
+    "pos_emb_dim" : 64,
+    "num_blocks": 4,
+    "num_heads": 8,
+    "dropout_rate": 0.2,
+    "emb_reg": 1e-4,
+    "need_attrs": ["uid","iid", "iid_list"]
+}

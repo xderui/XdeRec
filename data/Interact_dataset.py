@@ -97,7 +97,9 @@ class Interact_dataset(Dataset):
 
     def check_params(self):
         require_params = [
-            ""
+            "dataset",
+            "file",
+            
         ]
 
     def statistic(self):

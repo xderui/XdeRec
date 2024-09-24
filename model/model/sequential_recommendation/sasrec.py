@@ -1,83 +1,80 @@
-from model.sequential_recommendation.BaseModel import BaseModel
+# from model.sequential_recommendation.BaseModel import BaseModel
 import torch.nn as nn
 import torch
 from torch.nn import functional as F
+from model.model.sequential_recommendation._BaseModel_ import BaseModel
+from data.interact_dataset import Interact_dataset
+from model.model.sequential_recommendation._modules_ import MultiHeadAttention, FeedForward
+
 
 class SASRec(BaseModel):
-    def __init__(self):
-        super(SASRec, self).__init__()
-
-
-
-class MultiHeadAttention(nn.Module):
-    def __init__(self, num_heads, input_dim, attention_dim, dropout_rate):
-        super(MultiHeadAttention, self).__init__()
-
-        self.num_heads = num_heads
-        self.attention_dim = attention_dim
-        self.dropout_rate = dropout_rate
+    def __init__(self,
+                 interactions: Interact_dataset,
+                 param_dict: dict):
+        super(SASRec, self).__init__(interactions, param_dict)
+        self.item_emb = nn.Embedding(self.num_items+1, self.latent_dim, padding_idx=0)
+        self.pos_emb = nn.Embedding(self.interactions.max_seq_len, self.pos_emb_dim)
         
-        assert attention_dim % num_heads == 0
+        self.multi_attention = nn.ModuleList([MultiHeadAttention(self.num_heads, self.latent_dim, self.latent_dim, self.dropout_rate) for _ in range(self.num_blocks)] )
+        self.feedfoward = nn.ModuleList([FeedForward(self.latent_dim)  for _ in range(self.num_blocks)])
+        self.layernorm = nn.ModuleList([nn.LayerNorm(self.latent_dim) for _ in range(2 * self.num_blocks)])
+        self.final_layernorm = nn.LayerNorm(self.latent_dim)
+        self.dropout = nn.Dropout(self.dropout_rate)
 
-        self.depth = attention_dim // num_heads
+    def forward(self, input_seq, pos, neg):
+        seq_len = input_seq.shape[-1]
+        mask = (input_seq != 0).unsqueeze(-1).float()
+        
+        # seq embedding
+        print(input_seq.shape)
+        seq_emb = self.item_emb(input_seq) * (self.latent_dim ** 0.5)
 
-        self.Q_linear = nn.Linear(input_dim, attention_dim, bias=False)
-        self.K_linear = nn.Linear(input_dim, attention_dim, bias=False)
-        self.V_linear = nn.Linear(input_dim, attention_dim, bias=False)
-        self.dropout = nn.Dropout(p=dropout_rate)
-
-    def forward(self, query, key):
-        # linear projection
-        q = self.Q_linear(query)   # [batch, n, dim]
-        k = self.K_linear(key)
-        v = self.V_linear(key)
-
-        # multi-head
-        q_ = q.reshape(-1, query.shape[1], self.depth)
-        k_ = k.reshape(-1, key.shape[1], self.depth)
-        v_ = v.reshape(-1, key.shape[1], self.depth)
-
-        # multiplication
-        output = torch.einsum("bij, bji->bii", q_, k_.transpose(1,2)) # [batch, q_n, k_n]
-        # scale
-        output = output / torch.sqrt(self.depth)
-
-        # key mask
-        key_mask = torch.sign(torch.abs(torch.sum(key, dim=-1))) # [batch, k_n]
-        key_mask = torch.tile(key_mask, [self.num_heads, 1]) # [batch*num_heads, k_n]
-        key_mask = torch.tile(key_mask.unsqueeze(1), [1, query.shape[1], 1])  # [batch*num_heads, q_n, k_n]
-
-        paddings = torch.ones_like(output) * (-(2**32)+1)
-
-        output = torch.where(key_mask == 0, paddings, output)
-
-        # future blinding(causality)
-        diag_vals = torch.ones_like(output[0,:,:]) # [q_n, k_n]
-        tril = torch.tril(diag_vals).to_dense() # [q_n, k_n]
-
-        masks = torch.tile(tril.unsqueeze(1), [output.shape[0], 1, 1]) # [batch*num_heads, q_n, k_n]
-
-        padings = torch.ones_like(masks) * (-(2**32) + 1)
-        output = torch.where(masks == 0, paddings, output)
-
-        # activation
-        output = F.softmax(output, dim=-1)
-        query_mask = torch.sign(torch.abs(torch.sum(query, dim=-1))) # [batch, q_n]
-        query_mask = torch.tile(query_mask, [self.num_heads, 1]) # [batch*num_heads, q_n]
-        query_mask = torch.tile(query_mask.unsqueeze(1), [1, key.shape[1], 1])  # [batch*num_heads, k_n, q_n]
-
-        output = query_mask * output
-
+        # print(seq_emb.shape. input_seq.shape)
+        # pos embedding
+        pos_emb = self.pos_emb(input_seq)
+        # add
+        print(seq_emb.shape, pos_emb.shape)
+        seq_emb = seq_emb + pos_emb
         # dropout
-        output = self.dropout(output)
+        seq_emb = self.dropout(seq_emb)  
+        # mask
+        seq_emb = seq_emb * mask
+        
+        # blocks
+        print('start')
+        for i in range(self.num_blocks):
+            norm_seq_emb = self.layernorm[2*i](seq_emb)
+            print(norm_seq_emb.shape, seq_emb.shape)
+            seq_emb = self.multi_attention[i](norm_seq_emb, seq_emb)
+            seq_emb = self.feedfoward[i](self.layernorm[2*i+1](seq_emb), dim=-1)
+            seq_emb = seq_emb * mask
 
-        # weighted sum
-        output = torch.matmul(output, v_)
+        print('start2')
+        seq_emb = self.final_layernorm(seq_emb)
 
-        # concat multi-head
-        output = torch.concat(torch.split(output, self.num_heads, dim=0), dim=2) # [batch, q_n, dim]
+        pos_emb = self.item_emb(pos)
+        neg_emb = self.item_emb(neg)
 
-        # residual connection
-        output = output + query
+        pos_logits = (pos_emb * seq_emb).sum(dim=-1)
+        neg_logits = (neg_emb * seq_emb).sum(dim=-1)
 
-        return output
+        istarget = (pos!=0).float()
+
+        loss = -torch.sum(torch.log(torch.sigmoid(pos_logits) + 1e-18) * istarget + torch.log(1 - torch.sigmoid(neg_logits) + 1e-18) * istarget) / torch.sum(istarget)
+
+        return loss
+
+
+
+
+
+# if __name__ == "__main__":
+#     model = MultiHeadAttention(8,32,32,0.2)
+#     x = torch.randn(size=(1024,50,32))
+
+#     x2 = torch.randn(size=(1024,50))
+#     # model2 = SASRec()
+    
+#     print(model(x,x).shape)
+
+

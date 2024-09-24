@@ -22,6 +22,8 @@ Now, XdeRec covers the following major recommendation tasks:
 
 ## News
 
+09/24/2024: We provide a front-end page for the training programme, which makes it easier to set parameters and train with one click! Currently, we are only visualising the training process, and in the future, we will add a visual testing session to provide further convenience for other domain users.
+
 04/17/2024: The basic training functions have been realized.
 
 04/17/2024: Add three models: SGL, SimGCL and XSimGCL
@@ -29,6 +31,12 @@ Now, XdeRec covers the following major recommendation tasks:
 
 ## Usage
 
+### Training
+If you want to train the model using command line, please configure the config file and then implement:
 ```python
 python main.py --config ./config/train.json
+```
+The front-end visualisation of training panel is available!
+```python
+python ui.py
 ```

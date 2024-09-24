@@ -11,7 +11,21 @@ from utils.Libs import *
 from model.Evaluator import Evaluator
 from tqdm import tqdm
 import time
+from abc import ABC, abstractmethod
 
+class AbstractTrainer(nn.Module):
+    def __init__(self, model_type):
+        super(AbstractTrainer, self).__init__()
+    
+    @abstractmethod
+    def init_param(self, param_dict):
+        pass
+
+    @abstractmethod
+    def train(self):
+        pass
+
+            
 
 class Trainer(nn.Module):
     def __init__(self,
@@ -104,7 +118,7 @@ class SeqTrainer(nn.Module):
                  train_config: dict,
                  eval_config: dict,
                  model_):
-        super(Trainer, self).__init__()
+        super(SeqTrainer, self).__init__()
 
         self.init_param(train_config)
         self.model_ = model_.to(DEVICE())
@@ -136,19 +150,21 @@ class SeqTrainer(nn.Module):
         for epoch_ in range(self.epoch):
             if hasattr(self, 'n_batch'):
                 n_batch = self.n_batch
-                loop = tqdm(self.model_.interactions.sample_users(n_batch), total=n_batch)
+                loop = tqdm(self.model_.interactions.sample_interactions(n_batch), total=n_batch)
                 loop.set_description("Sampling data")
             else:
                 n_batch = len(self.model_.interactions.splited_interactions[0]) // self.batch_size + 1
-                loop = self.model_.interactions.sample_all_interactions()
+                loop = self.model_.interactions.sample_all_interactions(self.model_.need_attrs)
             train_loop = tqdm(enumerate(loop), total=n_batch)
             s_time = time.time()
             avg_loss = 0
-            self.model_.sample()
+            # self.model_.sample()
             for batch_idx, batch in train_loop:
+                # print(len(batch), batch)
                 batch = [torch.tensor(v).cuda() for v in batch]
-                users, pos_items, neg_items = batch
-                loss = self.model_(users, pos_items, neg_items)
+                # users, pos_items, neg_items = batch
+                users, pos_items, sequences, neg_items = batch
+                loss = self.model_(sequences, pos_items, neg_items)
 
                 avg_loss += loss
                 optimizer.zero_grad()

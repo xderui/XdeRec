@@ -9,6 +9,7 @@ FilePath: CF_dataset.py
 
 from data.interact_dataset import Interact_dataset
 import random
+import numpy as np
 
 class CF_dataset(Interact_dataset):
     def __init__(self, **kwars):

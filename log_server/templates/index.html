@@ -1,0 +1,53 @@
+<!doctype html>
+  <html>
+    <head>
+      <link rel="stylesheet" href="static/node_modules/@xterm/xterm/css/xterm.css" />
+      <script src="static/node_modules/@xterm/xterm/lib/xterm.js"></script>
+      <script src="https://use.typekit.net/nlq1kdt.js"></script>
+      <script>try{Typekit.load({ async: true });}catch(e){}</script>
+      <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+
+    </head>
+    <body onload="log()">
+      <div id="terminal"></div>
+      <script>
+        var time
+        var term = new Terminal();
+        term.open(document.getElementById('terminal'));
+        term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+        
+        function log(){
+          
+          clearTimeout(time) // clear timer
+          var log_null = 0
+
+          $.post('/generation_log',{},function (){
+          }) // post 
+          time = setInterval(function (){
+              $.get('/get_log',{},function (data){ // get log
+                  if (data.log_type == 3){ // if log == null
+                      log_null ++
+                      if (log_null >= 10000){
+                          clearTimeout(time) // clear timer when 10 successive times
+                      }
+                      return
+                  }
+                  if (data.log_type == 2){ // get new log
+                      for (i=0;i<data.log_list.length;i++){ 
+                          if (data.log_list[i] == '\n' || data.log_list[i] == '' || data.log_list[i] == '\r') continue
+                          if (data.log_list[i].indexOf("loss=") != -1)
+                            term.write("\r\n\x1b[33m$\x1b[0m " + data.log_list[i])
+                          else{
+                            term.write("\r")
+                          }
+                      }
+                      log_null = 0 
+                  }
+
+              })
+          },1000) // execute 1s per time
+        }
+
+      </script>
+    </body>
+  </html>

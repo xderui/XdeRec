@@ -38,13 +38,16 @@ if __name__ == "__main__":
     
     
     # first find model module, ensuring which type of dataset should be loaded
-    model_name = train_config['model'].lower()
+    # model_name = train_config['model'].lower()
+    model_name = train_config['model']
     MODEL_MODULE = None
     for model_type in MODEL_TYPES:
         model_module_path = '.'.join(['model', 'model', model_type, model_name])
-        if importlib.util.find_spec(model_module_path, __name__):
-            MODEL_MODULE = importlib.import_module(f'model.model.{model_type}.{model_name}', __name__)
+        if importlib.util.find_spec(model_module_path, model_name):
+            print('find!', model_type, f'model.model.{model_type}.{model_name}')
+            MODEL_MODULE = importlib.import_module(f'model.model.{model_type}.{model_name}')
             model_type_ = model_type
+            print('ok find')
             break
     if not MODEL_MODULE:
         raise ValueError(f"model {train_config['model']} is not exsits")
@@ -61,14 +64,16 @@ if __name__ == "__main__":
     # init model
     # parameters setting is in ./model/config/{model_name}.json
     # model_config_path = config['model_config']['path']
-    model_config_path = f'./model/config/{model_name}.json'
+    model_config_path = f'./model/config/{model_type_}/{model_name}.json'
     model_config = json.loads(open(model_config_path,'r').read())
 
     model_ = MODEL_CLASS(interactions, model_config)
 
     # train #
     eval_config = config['eval_config']
-    trainer = Trainer(train_config, eval_config, model_)
+    TRAINER_MODULE = importlib.import_module(f"model.Trainer", __name__)
+    TRAINER_CLASS = getattr(TRAINER_MODULE, MODEL_TYPE2TRAINER_TYPE[model_type_])
+    trainer = TRAINER_CLASS(train_config, eval_config, model_)
     trainer.train()
 
     # test #

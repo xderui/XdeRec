@@ -1,5 +1,5 @@
 from utils.Libs import *
-from model.model.BaseModel import BaseModel
+from model.model.collaborative_filtering._BaseModel_ import BaseModel
 from data.interact_dataset import Interact_dataset
 import random
 import scipy.sparse as sp
