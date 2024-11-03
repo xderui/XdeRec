@@ -1,5 +1,5 @@
 import torch
-from model.sequential_recommendation.BaseModel import BaseModel
+from model.model.sequential_recommendation._BaseModel_ import BaseModel
 
 class SLi_Rec_Adaptive(BaseModel):
     def __init__(self):

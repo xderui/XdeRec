@@ -40,3 +40,8 @@ The front-end visualisation of training panel is available!
 ```python
 python ui.py
 ```
+
+## Display
+![framework](./fig/ui.png)
+
+![framework](./fig/terminal.png)

@@ -365,7 +365,6 @@ def train_model(*widget_values):
             listen_client.connect((internet_ip, server_port))
         except Exception as e:
             print(e)
-        print(e)
     
     # establish the connection
     try:

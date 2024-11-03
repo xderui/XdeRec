@@ -8,7 +8,7 @@ FilePath: DCCF.py
 Paper: Disentangled contrastive collaborative filtering, SIGIR 2023
 '''
 from utils.Libs import *
-from model.model.collaborative_filtering.BaseModel import BaseModel
+from model.model.collaborative_filtering._BaseModel_ import BaseModel
 from data.interact_dataset import Interact_dataset
 from utils.loss import bpr_loss, reg_loss_pow
 
