@@ -1,4 +1,12 @@
-baselines/
-dataset/*
-test.ipynb
-package-lock.json
+pytorch/baselines/
+pytorch/dataset/*
+pytorch/test.ipynb
+pytorch/package-lock.json
+
+tensorflow/logs/
+tensorflow/dataset/
+tensorflow/checkpoints/
+tensorflow/logs.txt
+tensorflow/main_bak.py
+tensorflow/plan.md
+tensorflow/output.log

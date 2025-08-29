@@ -1,0 +1,28 @@
+type: 'sequential'
+trainer_config:
+  model_config:
+    model_name: "HSTU"
+    model_param:
+      n_layers : 3
+      n_heads: 4
+      n_dims: 32
+      hidden_units: []
+      activations: []
+      u_enable: True
+      u_nums : 2
+      save_hidden_states : False
+  training_config:
+    epoches: 1
+    log_dir: "./logs"
+    checkpoint_dir: "./checkpoints"
+    optimizer: "Adam"
+    optimizer_param:
+      learning_rate: 1e-3
+  data_config:
+    data_path: "./dataset/gti-contest-track1/sequence_data"
+    data_sep: "\t"
+    data_is_seq: True
+    seq_max_len: 1024
+
+
+

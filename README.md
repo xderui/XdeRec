@@ -6,9 +6,22 @@
  * @LastEditTime: 2024-04-22 22:16:00
  * @FilePath: README.md
 -->
+
+# XdeRec 2.0
+## Update
+
+🔥 GRs are available now implemented by tensorflow!
+```python
+cd tensorflow
+python main.py
+```
+![loss](./tensorflow/fig/loss.png)
+
+
 # XdeRec
 
-![framework](./fig/framework.png)
+
+![framework](./pytorch/fig/framework.png)
 
 XdeRec is an integrated recommendation framework based on PyTorch, including data processing, model training, model inference and other basic functions. The feature of our framework is that it is more convenient for users to add custom models. We have highly encapsulated the model, users only need to follow the template to fill in some basic functions of the model, and then starting the whole training process!
 
@@ -42,6 +55,6 @@ python ui.py
 ```
 
 ## Display
-![framework](./fig/ui.png)
+![framework](./pytorch/fig/ui.png)
 
-![framework](./fig/terminal.png)
+![framework](./pytorch/fig/terminal.png)

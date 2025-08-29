@@ -1,0 +1,62 @@
+start_name: "START"
+components:
+  model_component_0:
+    name: "hstu_noaction.HSTU"
+    param:
+      n_layers: 3
+      n_heads: 4
+      n_dims: 32
+      hidden_units: [32]
+      activations:
+      # u_enable:
+      u_nums: 2
+    input_spec:
+      - name: "input_sparse_embedding"
+        type: "tf.Tensor"
+        shape: [None, None, None]
+        description: "input feature embedding"
+      # - name: "target_id"
+      #   type: "tf.Tensor"
+      #   shape: [None, None]
+      #   description: "target id"
+      - name: "target_embedding"
+        type: "tf.Tensor"
+        shape: [None, None, None]
+        description: "target embedding from target id"
+    output_spec:
+      - name: "model_output"
+        type: "tf.Tensor"
+        shape: [None, None, None]
+        description: "output embeddings of model"
+
+
+    
+
+  model_component_1:
+    name: "hstu_noaction.HSTU"
+    param:
+      n_layers: 3
+      n_heads: 4
+      n_dims: 32
+      hidden_units: [32]
+      activations:
+      # u_enable:
+      u_nums: 2
+
+  model_component_2:
+    name: "hstu_noaction.HSTU"
+    param:
+      n_layers: 3
+      n_heads: 4
+      n_dims: 32
+      hidden_units: [32]
+      activations:
+      # u_enable:
+      u_nums: 2
+
+graph:
+  - ["START", "model_component_2"]
+  - ["model_component_2", "model_component_0"]
+  - ["model_component_0", "model_component_1"]
+  - ["model_component_1", "model_component_0"]
+  - ["model_component_1", "model_component_2"]
